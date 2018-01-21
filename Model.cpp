@@ -17,7 +17,7 @@ Model::Model()
 	window.create(sf::VideoMode(size * Settings::N, size * Settings::M),
 				  "Life simulator", Style::Titlebar | Style::Close);
 	window.setPosition(Vector2i(vm.width / 8, vm.height / 8));
-	window.setFramerateLimit(3);
+	window.setFramerateLimit(75);
 
 	ICreature::setModel(this);
 
@@ -40,7 +40,14 @@ void Model::kill(Settings::Types type, int x, int y) {
 }
 
 void Model::add(Settings::Types type, int x, int y) {
-	at(x, y, type) = Settings::Allocators[type](x, y);
+	// try to add child
+	for (int cy = -1; cy <= 1; ++cy)
+		for (int cx = -1; cx <= 1; ++cx) {
+			if (x + cx >= 0 && x + cx < Settings::N && y + cy >= 0 &&
+				y + cy < Settings::M && at(x + cx, y + cy, type) == nullptr)
+				at(x + cx, y + cy, type) =
+					Settings::Allocators[type](x + cx, y + cy);
+		}
 }
 
 ICreature *&Model::at(int x, int y, int r) {

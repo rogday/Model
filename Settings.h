@@ -9,6 +9,8 @@
 #include <random>
 #include <vector>
 
+#define DEBUG
+
 #include <iostream>
 
 class ICreature;
@@ -49,8 +51,8 @@ const double CarrotProb = 25.0;
 const double FoxProb = 15.0;
 const double BunnyProb = 25.0;
 
-const std::initializer_list<double> Probs = {EmptyProb, CarrotProb, FoxProb,
-											 BunnyProb};
+const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,
+											 CarrotProb};
 
 // Fabric
 extern std::array<std::function<ICreature *(int, int)>, 3> Allocators;
