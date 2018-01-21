@@ -42,12 +42,13 @@ void Model::kill(Settings::Types type, int x, int y) {
 void Model::add(Settings::Types type, int x, int y) {
 	// try to add child
 	for (int cy = -1; cy <= 1; ++cy)
-		for (int cx = -1; cx <= 1; ++cx) {
+		for (int cx = -1; cx <= 1; ++cx)
 			if (x + cx >= 0 && x + cx < Settings::N && y + cy >= 0 &&
-				y + cy < Settings::M && at(x + cx, y + cy, type) == nullptr)
+				y + cy < Settings::M && at(x + cx, y + cy, type) == nullptr) {
 				at(x + cx, y + cy, type) =
 					Settings::Allocators[type](x + cx, y + cy);
-		}
+				return;
+			}
 }
 
 ICreature *&Model::at(int x, int y, int r) {
@@ -58,26 +59,36 @@ void Model::processField() {
 	IAnimal *ptr = nullptr;
 	int coord = 0;
 
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	std::discrete_distribution<> d({3, 97});
+
 	for (int i = 0; i < Settings::N; ++i)
 		for (int k = 0; k < Settings::M; ++k)
 			for (int r = 0; r < Settings::None; ++r)
-				if (at(i, k, r) != nullptr && at(i, k, r)->ready(pass)) {
-					if (!at(i, k, r)->process())
-						kill((Settings::Types)r, i, k);
-					else if ((ptr = dynamic_cast<IAnimal *>(at(i, k, r))) !=
-							 nullptr) {
-						int dx = i, dy = k;
-						while (ptr->hasMoves()) {
-							coord = ptr->move();
+				if (at(i, k, r) != nullptr) {
+					if (at(i, k, r)->ready(pass)) {
+						if (!at(i, k, r)->process())
+							kill((Settings::Types)r, i, k);
+						else if ((ptr = dynamic_cast<IAnimal *>(at(i, k, r))) !=
+								 nullptr) {
+							int dx = i, dy = k;
+							while (ptr->hasMoves()) {
+								coord = ptr->move();
 
-							at(dx, dy, r) = nullptr;
+								at(dx, dy, r) = nullptr;
 
-							dx += coord % 3 - 1;
-							dy += coord / 3 - 1;
+								dx += coord % 3 - 1;
+								dy += coord / 3 - 1;
 
-							at(dx, dy, r) = ptr;
+								at(dx, dy, r) = ptr;
+							}
 						}
 					}
+				} else {
+					if (r == Settings::Carrot && d(gen) == 0)
+						add(Settings::Carrot, i, k);
 				}
 
 	pass ^= true;

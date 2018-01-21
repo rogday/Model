@@ -26,7 +26,7 @@ class Animal : public IAnimal {
 	}
 
 	double calcPart() const {
-		if (age < 0.2 * LifeSpan || age > 0.8 * LifeSpan)
+		if (age < 11 || age > 0.7 * LifeSpan)
 			return 0.0;
 		double f = (age - 25.0) / 3.0;
 		return 1.0 / (f * f + 1.0);
@@ -56,7 +56,7 @@ class Animal : public IAnimal {
 					for (int x = minX; x <= maxX; ++x)
 						for (int y = minY; y <= maxY; ++y)
 							for (int r = 0; r < Settings::None; ++r)
-								if (model->at(r, x, y) != nullptr)
+								if (model->at(x, y, r) != nullptr)
 									ways[i] += wave(weights[r], x - (X + cx),
 													y - (Y + cy));
 
@@ -98,7 +98,7 @@ class Animal : public IAnimal {
 	}
 
 	int move() {
-		int w = findPath(-15, 13 * calcSat(), 11 * calcPart());
+		int w = findPath(-500, 13 * calcSat(), 11 * calcPart());
 
 		int dx = w % 3 - 1;
 		int dy = w / 3 - 1;

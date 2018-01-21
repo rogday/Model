@@ -9,16 +9,18 @@
 #include <random>
 #include <vector>
 
-#define DEBUG
+//#define DEBUG
 
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 class ICreature;
 
 namespace Settings {
 // dimentions
-const int N = 30;
-const int M = 20;
+const int N = 50;
+const int M = 50;
 
 // Sex[deprecated]
 // enum Sex { Male = 0, Female };
@@ -30,8 +32,8 @@ enum Types { Fox = 0, Bunny, Carrot, None }; // None is always in the end
 
 // LifeSpan
 const int CarrotLifeSpan = 30;
-const int FoxLifeSpan = 50;
-const int BunnyLifeSpan = 40;
+const int FoxLifeSpan = 150;
+const int BunnyLifeSpan = 100;
 
 // Speed
 const int FoxSpeed = 5;
@@ -46,10 +48,10 @@ const int CarrotNuVal = 20;
 const int BunnyNuVal = 40;
 
 // Probablilities
-const double EmptyProb = 35.0;
-const double CarrotProb = 25.0;
-const double FoxProb = 15.0;
-const double BunnyProb = 25.0;
+const double EmptyProb = 15.0;
+const double CarrotProb = 20.0;
+const double FoxProb = 30.0;
+const double BunnyProb = 35.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,
 											 CarrotProb};
