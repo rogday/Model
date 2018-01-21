@@ -1,14 +1,10 @@
 #include "Model.h"
 
-#include "Bunny.h"
-#include "Carrot.h"
-#include "Fox.h"
+#include "IAnimal.h"
+#include "IPlant.h"
 
-Model::Model(int n, int m) : field(n, std::vector<Cell>(m)) {
-	srand(time(nullptr)); // for animals etc
-
-	Settings::N = n;
-	Settings::M = m;
+Model::Model()
+	: field(Settings::N * Settings::M * Settings::None, nullptr), pass(false) {
 
 	ICreature::setModel(this);
 
@@ -19,43 +15,49 @@ Model::Model(int n, int m) : field(n, std::vector<Cell>(m)) {
 
 	int r = 0;
 
-	for (int i = 0; i < n; ++i)
-		for (int k = 0; k < m; ++k)
+	for (int i = 0; i < Settings::N; ++i)
+		for (int k = 0; k < Settings::M; ++k)
 			if ((r = d(gen)) != 0)
-				field[i][k].push_back(Settings::Allocators[r - 1](i, k));
+				at(i, k, r - 1) = Settings::Allocators[r - 1](i, k);
 }
 
 void Model::kill(Settings::Types type, int x, int y) {
-	auto it = get(type, x, y);
-	if (it != (Cell::iterator) nullptr) {
-		delete (*it);
-		field[x][y].erase(it);
-	}
+	delete at(x, y, type);
+	at(x, y, type) = nullptr;
 }
 
 void Model::add(Settings::Types type, int x, int y) {
-	field[x][y].push_back(Settings::Allocators[type](x, y));
+	at(x, y, type) = Settings::Allocators[type](x, y);
 }
 
-Cell::iterator Model::get(Settings::Types type, int x, int y) {
-	auto it =
-		std::find_if(field[x][y].begin(), field[x][y].end(),
-					 [type](ICreature *cr) { return type == cr->getType(); });
-
-	return (it == field[x][y].end()) ? ((Cell::iterator) nullptr) : (it);
+ICreature *&Model::at(int x, int y, int r) {
+	return field[Settings::N * Settings::M * r + y * Settings::N + x];
 }
 
 void Model::processField() {
+	IAnimal *ptr = nullptr;
+	int coord = 0;
+
 	for (int i = 0; i < Settings::N; ++i)
 		for (int k = 0; k < Settings::M; ++k)
-			for (auto it = field[i][k].begin(); it != field[i][k].end(); ++it)
-				if (!(*it)->process()) {
-					delete *it;
-					it = field[i][k].erase(it);
-				} else if ((*it)->getType() < Settings::PlantEdge) {
-					while (((Animal *)(*it))->hasMoves()) {
-						coord = ((Animal *)(*it))->move();
-						// moving stuff
+			for (int r = 0; r < Settings::None; ++r)
+				if (at(i, k, r) && at(i, k, r)->ready(pass)) {
+					if (!at(i, k, r)->process()) {
+						delete at(i, k, r);
+						at(i, k, r) = nullptr;
+					} else if ((ptr = dynamic_cast<IAnimal *>(at(i, k, r))) !=
+							   nullptr) {
+						int dx = i, dy = k;
+						while (ptr->hasMoves()) {
+							coord = ptr->move();
+
+							at(dx, dy, r) = nullptr;
+
+							dx += coord % 3 - 1;
+							dy += coord / 3 - 1;
+
+							at(dx, dy, r) = ptr;
+						}
 					}
 				}
 }

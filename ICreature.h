@@ -1,20 +1,19 @@
 #pragma once
 
-#include "Model.h"
-#include "Settings.h"
+class Model;
 
 class ICreature {
   protected:
-	Settings::Types type;
 	static Model *model;
 	int age;
+	bool pass;
 
   public:
-	ICreature(Settings::Types type) : type(type), age(0) {}
+	ICreature() : age(0), pass(false) {}
 
-	Settings::Types getType() const { return type; }
 	static void setModel(Model *mod) { model = mod; };
 	virtual bool process() = 0;
+	bool ready(bool Pass) { return Pass == pass; };
 
 	virtual ~ICreature() = default;
 };

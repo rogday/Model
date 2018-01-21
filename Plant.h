@@ -1,11 +1,15 @@
 #pragma once
 
-#include "ICreature.h"
+#include "IPlant.h"
 #include "Settings.h"
 
-template <int LifeSpan> class Plant : public ICreature {
+template <Settings::Types type, int LifeSpan> class Plant : public IPlant {
   public:
-	Plant(Settings::Types type) : ICreature(type){};
-	virtual bool process() override { return ++age <= LifeSpan; }
-	virtual ~Plant() = default;
+	Plant() = default;
+	virtual bool process() override {
+		pass ^= true;
+		return ++age <= LifeSpan;
+	}
 };
+
+using Carrot = Plant<Settings::Carrot, Settings::CarrotLifeSpan>;

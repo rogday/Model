@@ -4,6 +4,6 @@
 using namespace std;
 
 int main() {
-	Model test(100, 100);
+	Model test;
 	cout << "It works" << endl;
 }

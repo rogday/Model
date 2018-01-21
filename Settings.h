@@ -10,13 +10,10 @@
 
 class ICreature;
 
-using Cell = std::list<ICreature *>; // Multiple creatures in one cell
-using Map = std::vector<std::vector<Cell>>;
-
 namespace Settings {
 // dimentions
-extern int N;
-extern int M;
+const int N = 300;
+const int M = 200;
 
 // Sex[deprecated]
 // enum Sex { Male = 0, Female };
@@ -27,32 +24,32 @@ enum Types { Fox = 0, Bunny, Carrot, None }; // None is always in the end
 // animal[deprecated]
 
 // LifeSpan
-constexpr int CarrotLifeSpan = 30;
-constexpr int FoxLifeSpan = 50;
-constexpr int BunnyLifeSpan = 40;
+const int CarrotLifeSpan = 30;
+const int FoxLifeSpan = 50;
+const int BunnyLifeSpan = 40;
 
 // Speed
-constexpr int FoxSpeed = 5;
-constexpr int BunnySpeed = 3;
+const int FoxSpeed = 5;
+const int BunnySpeed = 3;
 
 // FOV
-constexpr int FoxFOV = 5;
-constexpr int BunnyFOV = 7;
+const int FoxFOV = 5;
+const int BunnyFOV = 7;
 
 // Nutritional Values
-constexpr int CarrotNuVal = 20;
-constexpr int BunnyNuVal = 40;
+const int CarrotNuVal = 20;
+const int BunnyNuVal = 40;
 
 // Probablilities
-constexpr double EmptyProb = 15.0;
-constexpr double CarrotProb = 35.0;
-constexpr double FoxProb = 20.0;
-constexpr double BunnyProb = 30.0;
+const double EmptyProb = 15.0;
+const double CarrotProb = 35.0;
+const double FoxProb = 20.0;
+const double BunnyProb = 30.0;
 
-constexpr std::initializer_list<double> Probs = {EmptyProb, CarrotProb, FoxProb,
-												 BunnyProb};
+const std::initializer_list<double> Probs = {EmptyProb, CarrotProb, FoxProb,
+											 BunnyProb};
 
 // Fabric
-extern std::array<std::function<::ICreature *(int, int)>, 3> Allocators;
+extern std::array<std::function<ICreature *(int, int)>, 3> Allocators;
 
 } // namespace Settings

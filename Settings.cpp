@@ -1,14 +1,9 @@
 #include "Settings.h"
 
-#include "Bunny.h"
-#include "Carrot.h"
-#include "Fox.h"
+#include "Animal.h"
+#include "Plant.h"
 
 Model *ICreature::model = nullptr;
-
-// dimentions
-int Settings::N = 0;
-int Settings::M = 0;
 
 // Fabric
 std::array<std::function<ICreature *(int, int)>, 3> Settings::Allocators = {

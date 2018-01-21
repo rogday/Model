@@ -1,10 +1,12 @@
 #pragma once
 
-#include "ICreature.h"
+#include "IAnimal.h"
+#include "Model.h"
+#include "Settings.h"
 
-template <int LifeSpan, int NutVal, int Speed, int FOV, Settings::Types Prey,
-		  Settings::Types Hunter>
-class Animal : public ICreature {
+template <Settings::Types type, int LifeSpan, int NutVal, int Speed, int FOV,
+		  Settings::Types Prey, Settings::Types Hunter>
+class Animal : public IAnimal {
   protected:
 	int satiety;
 	int X;
@@ -15,7 +17,7 @@ class Animal : public ICreature {
 		return std::max(c - m * m, 0);
 	}
 
-	double calcSat() {
+	double calcSat() const {
 		if (satiety < 20)
 			return 1.0;
 		if (satiety > 80)
@@ -23,7 +25,7 @@ class Animal : public ICreature {
 		return (satiety - 20.0) / 60.0;
 	}
 
-	double calcPart() {
+	double calcPart() const {
 		if (age < 0.2 * LifeSpan || age > 0.8 * LifeSpan)
 			return 0.0;
 		double f = (age - 25.0) / 3.0;
@@ -46,18 +48,25 @@ class Animal : public ICreature {
 		weights[Prey] = p;
 		weights[type] = s;
 
+		double threshold = calcPart();
+
 		for (int x = minX; x <= maxX; ++x)
 			for (int y = minY; y <= maxY; ++y)
 				for (int r = 0; r < Settings::None; ++r)
-					if (!model->at(r, x, y).empty()) {
+					if (model->at(r, x, y) != nullptr) {
 						int i = 0;
 						for (int cx : {-1, 0, 1})
 							for (int cy : {-1, 0, 1})
 								if (X + cx > 0 && X + cx < Settings::N &&
-									Y + cy > 0 && Y + cy < Settings::M)
+									Y + cy > 0 && Y + cy < Settings::M &&
+									(threshold > 0.5 ||
+									 model->at(type, x - (X + cx),
+											   y - (Y + cy)) != nullptr)) {
+
 									ways[i++] += wave(weights[r], x - (X + cx),
 													  y - (Y + cy));
-								else
+
+								} else
 									ways[i++] = h * 30; //>5*5
 					}
 
@@ -65,36 +74,52 @@ class Animal : public ICreature {
 	};
 
   public:
-	Animal(int i, int k, Settings::Types type)
-		: ICreature(type), satiety(100), X(i), Y(k){};
+	Animal(int i, int k) : satiety(100), X(i), Y(k){};
 
 	virtual bool process() override {
+		pass ^= true;
+
 		if (++age > LifeSpan)
 			return false; // too old
 
 		if (satiety -= 10 < 0)
 			return false; // too hungry
 
-		for (int i = 0; i < Speed; ++i) {
-			if (calcSat() != 0.0 && !model->at(Prey, X, Y).empty()) {
-				model->kill(Prey, X, Y);
-				satiety = std::min(satiety + NutVal, 100);
-			}
-
-			if (calcPart() != 0.0 && model->at(type, X, Y).size() > 1)
-				model->add(type, X, Y);
-
-			int w = findPath(-15, 13 * calcSat(), 11 * calcPart());
-		}
-
 		return true;
 	}
 
-	bool hasMoves() {
+	bool hasMoves() override {
 		static int moves = 1;
 		moves %= (Speed + 1);
 		return moves++;
 	}
 
-	virtual ~Animal() = default;
+	int move() {
+		int w = findPath(-15, 13 * calcSat(), 11 * calcPart());
+
+		int dx = w % 3 - 1;
+		int dy = w / 3 - 1;
+
+		if (model->at(type, X + dx, Y + dy) != nullptr) {
+			if (calcPart() != 0.0)
+				model->add(type, X, Y);
+			return 4; // stay in current place
+		}
+
+		if (calcSat() != 0.0 && model->at(Prey, X + dx, Y + dy) != nullptr) {
+			model->kill(Prey, X + dx, Y + dy);
+			satiety = std::min(satiety + NutVal, 100);
+		}
+
+		return w;
+	}
 };
+
+using Bunny =
+	Animal<Settings::Bunny, Settings::BunnyLifeSpan, Settings::CarrotNuVal,
+		   Settings::BunnySpeed, Settings::BunnyFOV, Settings::Types::Carrot,
+		   Settings::Types::Fox>;
+
+using Fox = Animal<Settings::Fox, Settings::FoxLifeSpan, Settings::BunnyNuVal,
+				   Settings::FoxSpeed, Settings::FoxFOV, Settings::Types::Bunny,
+				   Settings::Types::None>;
