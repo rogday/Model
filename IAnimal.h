@@ -7,4 +7,5 @@ class IAnimal : public ICreature {
 	virtual bool process() override = 0;
 	virtual bool hasMoves() = 0;
 	virtual int move() = 0;
+	virtual ~IAnimal() = default;
 };

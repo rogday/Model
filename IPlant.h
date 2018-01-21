@@ -5,4 +5,5 @@
 class IPlant : public ICreature {
   public:
 	virtual bool process() override = 0;
+	virtual ~IPlant() = default;
 };

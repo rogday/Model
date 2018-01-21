@@ -5,5 +5,8 @@ using namespace std;
 
 int main() {
 	Model test;
+
+	test.start();
+
 	cout << "It works" << endl;
 }

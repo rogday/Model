@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Settings.h"
+#include <SFML/Graphics.hpp>
 
 class Model {
   private:
 	std::vector<ICreature *> field;
 	bool pass;
+	sf::RenderWindow window;
 
   public:
 	Model();
@@ -15,4 +17,5 @@ class Model {
 	ICreature *&at(int x, int y, int r);
 
 	void processField();
+	void start();
 };

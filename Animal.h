@@ -59,9 +59,9 @@ class Animal : public IAnimal {
 							for (int cy : {-1, 0, 1})
 								if (X + cx > 0 && X + cx < Settings::N &&
 									Y + cy > 0 && Y + cy < Settings::M &&
-									(threshold > 0.5 ||
-									 model->at(type, x - (X + cx),
-											   y - (Y + cy)) != nullptr)) {
+									(threshold != 0.0 ||
+									 model->at(x - (X + cx), y - (Y + cy),
+											   type) != nullptr)) {
 
 									ways[i++] += wave(weights[r], x - (X + cx),
 													  y - (Y + cy));
@@ -82,7 +82,7 @@ class Animal : public IAnimal {
 		if (++age > LifeSpan)
 			return false; // too old
 
-		if (satiety -= 10 < 0)
+		if ((satiety -= 10) < 0)
 			return false; // too hungry
 
 		return true;
@@ -106,13 +106,18 @@ class Animal : public IAnimal {
 			return 4; // stay in current place
 		}
 
-		if (calcSat() != 0.0 && model->at(Prey, X + dx, Y + dy) != nullptr) {
-			model->kill(Prey, X + dx, Y + dy);
+		X += dx;
+		Y += dy;
+
+		if (calcSat() != 0.0 && model->at(Prey, X, Y) != nullptr) {
+			model->kill(Prey, X, Y);
 			satiety = std::min(satiety + NutVal, 100);
 		}
 
 		return w;
 	}
+
+	virtual ~Animal() = default;
 };
 
 using Bunny =

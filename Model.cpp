@@ -2,9 +2,22 @@
 
 #include "IAnimal.h"
 #include "IPlant.h"
+#include <algorithm>
+
+using namespace sf;
 
 Model::Model()
 	: field(Settings::N * Settings::M * Settings::None, nullptr), pass(false) {
+
+	VideoMode vm = VideoMode::getDesktopMode();
+
+	int size =
+		std::min(vm.width, vm.height) / std::max(Settings::M, Settings::N);
+
+	window.create(sf::VideoMode(size * Settings::N, size * Settings::M),
+				  "Life simulator", Style::Titlebar | Style::Close);
+	window.setPosition(Vector2i(vm.width / 8, vm.height / 8));
+	window.setFramerateLimit(3);
 
 	ICreature::setModel(this);
 
@@ -41,12 +54,11 @@ void Model::processField() {
 	for (int i = 0; i < Settings::N; ++i)
 		for (int k = 0; k < Settings::M; ++k)
 			for (int r = 0; r < Settings::None; ++r)
-				if (at(i, k, r) && at(i, k, r)->ready(pass)) {
-					if (!at(i, k, r)->process()) {
-						delete at(i, k, r);
-						at(i, k, r) = nullptr;
-					} else if ((ptr = dynamic_cast<IAnimal *>(at(i, k, r))) !=
-							   nullptr) {
+				if (at(i, k, r) != nullptr && at(i, k, r)->ready(pass)) {
+					if (!at(i, k, r)->process())
+						kill((Settings::Types)r, i, k);
+					else if ((ptr = dynamic_cast<IAnimal *>(at(i, k, r))) !=
+							 nullptr) {
 						int dx = i, dy = k;
 						while (ptr->hasMoves()) {
 							coord = ptr->move();
@@ -60,4 +72,46 @@ void Model::processField() {
 						}
 					}
 				}
+
+	pass ^= true;
+}
+
+void Model::start() {
+	Event event;
+
+	std::vector<RectangleShape> rects(Settings::N * Settings::M);
+	int size = window.getSize().x / Settings::N;
+
+	for (int i = 0; i < Settings::N; ++i)
+		for (int k = 0; k < Settings::M; ++k) {
+			rects[k * Settings::N + i] = RectangleShape(Vector2f(size, size));
+			rects[k * Settings::N + i].setPosition(size * i, size * k);
+		}
+
+	while (window.isOpen()) {
+		while (window.pollEvent(event))
+			if (event.type == Event::Closed)
+				window.close();
+
+		window.clear(Color::White);
+
+		for (int i = 0; i < Settings::N; ++i)
+			for (int k = 0; k < Settings::M; ++k) {
+				Color clr;
+				for (int r = 0; r < Settings::None; ++r)
+					if (at(i, k, r))
+						clr += Settings::Colors[r];
+
+				if (clr == Color::Black)
+					clr = Color::White;
+				rects[k * Settings::N + i].setFillColor(clr);
+			}
+
+		for (auto &rect : rects)
+			window.draw(rect);
+
+		processField();
+
+		window.display();
+	}
 }

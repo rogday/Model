@@ -10,6 +10,7 @@ template <Settings::Types type, int LifeSpan> class Plant : public IPlant {
 		pass ^= true;
 		return ++age <= LifeSpan;
 	}
+	virtual ~Plant() = default;
 };
 
 using Carrot = Plant<Settings::Carrot, Settings::CarrotLifeSpan>;

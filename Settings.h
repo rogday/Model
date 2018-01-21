@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Graphics/Color.hpp>
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -8,12 +9,14 @@
 #include <random>
 #include <vector>
 
+#include <iostream>
+
 class ICreature;
 
 namespace Settings {
 // dimentions
-const int N = 300;
-const int M = 200;
+const int N = 30;
+const int M = 20;
 
 // Sex[deprecated]
 // enum Sex { Male = 0, Female };
@@ -41,15 +44,17 @@ const int CarrotNuVal = 20;
 const int BunnyNuVal = 40;
 
 // Probablilities
-const double EmptyProb = 15.0;
-const double CarrotProb = 35.0;
-const double FoxProb = 20.0;
-const double BunnyProb = 30.0;
+const double EmptyProb = 35.0;
+const double CarrotProb = 25.0;
+const double FoxProb = 15.0;
+const double BunnyProb = 25.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, CarrotProb, FoxProb,
 											 BunnyProb};
 
 // Fabric
 extern std::array<std::function<ICreature *(int, int)>, 3> Allocators;
+
+extern std::array<sf::Color, 3> Colors;
 
 } // namespace Settings
