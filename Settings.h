@@ -10,26 +10,27 @@
 #include <random>
 #include <vector>
 
-#define DEBUG
+#define NDEBUG
 
-#ifdef DEBUG
+#ifndef NDEBUG
 #include <iostream>
 #endif
 
 class ICreature;
 
 namespace Settings {
+// aim FPS
+const int FPS = 75;
+
+// window size multiplier
+const float SizeScale = 0.5;
+
 // dimentions
 const int N = 64;
 const int M = 64;
 
-// Sex[deprecated]
-// enum Sex { Male = 0, Female };
-
 // cellTypes
 enum Types { Fox = 0, Bunny, Carrot, None }; // None is always in the end
-// constexpr int PlantEdge = Carrot; // Everything above this constant is an
-// animal[deprecated]
 
 // LifeSpan
 const int CarrotLifeSpan = 30;
@@ -53,9 +54,9 @@ const int CarrotNuVal = 35;
 const int BunnyNuVal = 80;
 
 // Probablilities
-const double EmptyProb = 5.0;
+const double EmptyProb = 10.0;
 const double CarrotProb = 35.0;
-const double FoxProb = 15.0;
+const double FoxProb = 10.0;
 const double BunnyProb = 45.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,

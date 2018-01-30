@@ -12,13 +12,14 @@ Model::Model()
 
 	VideoMode vm = VideoMode::getDesktopMode();
 
-	int size =
-		std::min(vm.width, vm.height) / std::max(Settings::M, Settings::N) / 2;
+	int size = std::min(vm.width, vm.height) /
+			   std::max(Settings::M, Settings::N) * Settings::SizeScale;
 
 	window.create(sf::VideoMode(size * Settings::N, size * Settings::M),
 				  "Life simulator", Style::Titlebar | Style::Close);
-	window.setPosition(Vector2i(vm.width / 8, vm.height / 8));
-	// window.setFramerateLimit(75);
+	window.setPosition(Vector2i(vm.width / 2 - size * Settings::N / 2,
+								vm.height / 2 - size * Settings::M / 2));
+	window.setFramerateLimit(Settings::FPS);
 
 	ICreature::setModel(this);
 
@@ -31,9 +32,9 @@ Model::Model()
 
 	for (int i = 0; i < Settings::N; ++i)
 		for (int k = 0; k < Settings::M; ++k) {
-			rects[k * Settings::N + i].setSize(Vector2f(size, size));
-			rects[k * Settings::N + i].setPosition(size * i, size * k);
-			rects[k * Settings::N + i].setFillColor(Color::Black);
+			rat(i, k).setSize(Vector2f(size, size));
+			rat(i, k).setPosition(size * i, size * k);
+			rat(i, k).setFillColor(Color::Black);
 		}
 
 	for (int i = 0; i < Settings::N; ++i)
@@ -47,23 +48,20 @@ Model::Model()
 }
 
 void Model::kill(int x, int y, int r) {
-	Color clr = rects[y * Settings::N + x].getFillColor() - Settings::Colors[r];
+	Color clr = rat(x, y).getFillColor() - Settings::Colors[r];
 	clr.a = 255;
 
-	rects[y * Settings::N + x].setFillColor(clr);
-
+	rat(x, y).setFillColor(clr);
 	at(x, y, r)->die();
 }
 
 bool Model::pinkTicket(int x, int y, int r, IAnimal *two) {
-	// return true;
 	return dynamic_cast<IAnimal *>(at(x, y, r))->getSex() ^ two->getSex() &&
 		   dynamic_cast<IAnimal *>(at(x, y, r))->getDelay() == 0 &&
 		   two->getDelay() == 0;
 }
 
 void Model::add(int x, int y, int r) {
-	// try to add child
 	int nx, ny;
 	for (int cy : {-1, 0, 1})
 		for (int cx : {-1, 0, 1}) {
@@ -72,20 +70,13 @@ void Model::add(int x, int y, int r) {
 			if (Settings::bounds(nx, Settings::N) &&
 				Settings::bounds(ny, Settings::M) && empty(nx, ny, r)) {
 				at(nx, ny, r)->reset(pass);
-				Color clr = rects[ny * Settings::N + nx].getFillColor() +
-							Settings::Colors[r];
+				Color clr = rat(nx, ny).getFillColor() + Settings::Colors[r];
 				clr.a = 255;
-				rects[ny * Settings::N + nx].setFillColor(clr);
+				rat(nx, ny).setFillColor(clr);
 				return;
 			}
 		}
 }
-
-ICreature *&Model::at(int x, int y, int r) {
-	return field[Settings::N * Settings::M * r + y * Settings::N + x];
-}
-
-bool Model::empty(int x, int y, int r) { return !at(x, y, r)->alive(); }
 
 void Model::move(int x, int y, int r, int way) {
 	int ni = x + way % 3 - 1;
@@ -96,15 +87,15 @@ void Model::move(int x, int y, int r, int way) {
 
 	at(x, y, r)->swap(at(ni, nk, r));
 
-	Color clr = rects[y * Settings::N + x].getFillColor() - Settings::Colors[r];
+	Color clr = rat(x, y).getFillColor() - Settings::Colors[r];
 	clr.a = 255;
 
-	rects[y * Settings::N + x].setFillColor(clr);
+	rat(x, y).setFillColor(clr);
 
-	clr = rects[nk * Settings::N + ni].getFillColor() + Settings::Colors[r];
+	clr = rat(ni, nk).getFillColor() + Settings::Colors[r];
 	clr.a = 255;
 
-	rects[nk * Settings::N + ni].setFillColor(clr);
+	rat(ni, nk).setFillColor(clr);
 }
 
 void Model::processField() {

@@ -45,7 +45,7 @@ class Animal : public IAnimal {
 
 		int ways[9]{};
 
-		std::array<int, Settings::None + 1> weights;
+		std::array<int, Settings::None + 1> weights{};
 		weights[Hunter] = h;
 		weights[Prey] = p;
 		weights[type] = s;
@@ -86,7 +86,7 @@ class Animal : public IAnimal {
 	virtual void reset(bool pass) override {
 		assert(!state);
 
-#ifdef DEBUG
+#ifndef NDEBUG
 		std::cout << "reset()" << std::endl;
 #endif
 
@@ -118,19 +118,17 @@ class Animal : public IAnimal {
 			delay -= 1;
 
 		if (++age > LifeSpan) {
-#ifdef DEBUG
+#ifndef NDEBUG
 			std::cout << "too old" << std::endl;
 #endif
-			return false; // too old
+			return false;
 		}
 
 		if ((satiety -= 4) < 0) {
-#ifdef DEBUG
-			if (type == Settings::Bunny)
-				std::cout << "I am fucking Bunny" << std::endl;
+#ifndef NDEBUG
 			std::cout << "too hungry" << std::endl;
 #endif
-			return false; // too hungry
+			return false;
 		}
 
 		return true;
@@ -151,7 +149,7 @@ class Animal : public IAnimal {
 		if (w != 4 && !model->empty(X + dx, Y + dy, type)) {
 			if (calcPart() != 0.0 &&
 				model->pinkTicket(X + dx, Y + dy, type, this)) {
-#ifdef DEBUG
+#ifndef NDEBUG
 				std::cout << "population++" << std::endl;
 #endif
 				delay = Delay;
@@ -161,7 +159,7 @@ class Animal : public IAnimal {
 		}
 
 		if (calcSat() != 1.0 && !model->empty(X, Y, Prey)) {
-#ifdef DEBUG
+#ifndef NDEBUG
 			std::cout << "Mnom-mnom" << std::endl;
 #endif
 			model->kill(X, Y, Prey);

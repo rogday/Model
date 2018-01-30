@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ICreature.h"
 #include "Settings.h"
 #include <SFML/Graphics.hpp>
 
@@ -13,7 +14,12 @@ class Model {
 	std::vector<sf::RectangleShape> rects;
 
   private:
-	ICreature *&at(int x, int y, int r);
+	ICreature *&at(int x, int y, int r) {
+		return field[Settings::N * Settings::M * r + y * Settings::N + x];
+	};
+	sf::RectangleShape &rat(int x, int y) {
+		return rects[y * Settings::N + x];
+	};
 	void move(int x, int y, int r, int way);
 
   public:
@@ -21,7 +27,7 @@ class Model {
 	// kill and add
 	void kill(int x, int y, int r);
 	void add(int x, int y, int r);
-	bool empty(int x, int y, int r);
+	bool empty(int x, int y, int r) { return !at(x, y, r)->alive(); }
 
 	bool pinkTicket(int x, int y, int r, IAnimal *two);
 
