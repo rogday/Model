@@ -3,6 +3,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <functional>
 #include <initializer_list>
 #include <list>
@@ -35,23 +36,29 @@ const int CarrotLifeSpan = 30;
 const int FoxLifeSpan = 150;
 const int BunnyLifeSpan = 100;
 
+// Delay
+const int FoxDelay = 6;
+const int BunnyDelay = 2;
+
 // Speed
-const int FoxSpeed = 5;
-const int BunnySpeed = 3;
+// const int FoxSpeed = 5;
+// const int BunnySpeed = 3;
+const int FoxSpeed = 1;
+const int BunnySpeed = 4;
 
 // FOV
-const int FoxFOV = 5;
-const int BunnyFOV = 7;
+const int FoxFOV = 3;
+const int BunnyFOV = 2;
 
 // Nutritional Values
-const int CarrotNuVal = 20;
-const int BunnyNuVal = 40;
+const int CarrotNuVal = 35;
+const int BunnyNuVal = 80;
 
 // Probablilities
-const double EmptyProb = 15.0;
-const double CarrotProb = 20.0;
-const double FoxProb = 30.0;
-const double BunnyProb = 35.0;
+const double EmptyProb = 10.0;
+const double CarrotProb = 35.0;
+const double FoxProb = 5.0;
+const double BunnyProb = 50.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,
 											 CarrotProb};

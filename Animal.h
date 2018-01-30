@@ -5,10 +5,12 @@
 #include "Settings.h"
 
 template <Settings::Types type, int LifeSpan, int NutVal, int Speed, int FOV,
-		  Settings::Types Prey, Settings::Types Hunter>
+		  Settings::Types Prey, Settings::Types Hunter, int Delay>
 class Animal : public IAnimal {
   protected:
 	int satiety;
+	bool sex;
+	int delay;
 	int X;
 	int Y;
 
@@ -19,17 +21,17 @@ class Animal : public IAnimal {
 
 	double calcSat() const {
 		if (satiety < 20)
-			return 1.0;
-		if (satiety > 80)
 			return 0.0;
+		if (satiety > 80)
+			return 1.0;
 		return (satiety - 20.0) / 60.0;
 	}
 
 	double calcPart() const {
-		if (age < 11 || age > 0.7 * LifeSpan)
+		if (age < 0.2 * LifeSpan || age > 0.8 * LifeSpan)
 			return 0.0;
-		double f = (age - 25.0) / 3.0;
-		return 1.0 / (f * f + 1.0);
+		double f = abs(age - LifeSpan / 2);
+		return 1.0 / (f + 1.0);
 	}
 
 	int findPath(int h, int p, int s) const {
@@ -49,6 +51,7 @@ class Animal : public IAnimal {
 		weights[type] = s;
 
 		int i = 0;
+		bool empty = true;
 		for (int cy = -1; cy <= 1; ++cy)
 			for (int cx = -1; cx <= 1; ++cx) {
 				if (X + cx >= 0 && X + cx < Settings::N && Y + cy >= 0 &&
@@ -56,23 +59,34 @@ class Animal : public IAnimal {
 					for (int x = minX; x <= maxX; ++x)
 						for (int y = minY; y <= maxY; ++y)
 							for (int r = 0; r < Settings::None; ++r)
-								if (model->at(x, y, r) != nullptr)
+								if (!model->empty(x, y, r)) {
+
 									ways[i] += wave(weights[r], x - (X + cx),
 													y - (Y + cy));
+								}
 
-				} else
+				} else {
 					ways[i] = INT32_MIN; //>5*5
+					empty = false;
+				}
 				++i;
 			}
+
+		if (empty)
+			return rand() % 9;
 
 		return std::max_element(ways, ways + 9) - ways; // hack???
 	};
 
   public:
-	Animal(int i, int k) : satiety(100), X(i), Y(k){};
+	Animal(int i, int k)
+		: satiety(80 + rand() % 21), sex(rand() % 2), delay(0), X(i), Y(k){};
 
 	virtual bool process() override {
 		pass ^= true;
+
+		if (delay > 0)
+			delay -= 1;
 
 		if (++age > LifeSpan) {
 #ifdef DEBUG
@@ -81,8 +95,10 @@ class Animal : public IAnimal {
 			return false; // too old
 		}
 
-		if ((satiety -= 10) < 0) {
+		if ((satiety -= 6) < 0) {
 #ifdef DEBUG
+			if (type == Settings::Bunny)
+				std::cout << "I am fucking Bunny" << std::endl;
 			std::cout << "too hungry" << std::endl;
 #endif
 			return false; // too hungry
@@ -98,17 +114,19 @@ class Animal : public IAnimal {
 	}
 
 	int move() {
-		int w = findPath(-500, 13 * calcSat(), 11 * calcPart());
+		int w = findPath(-35, 30 * calcSat(), 50 * calcPart());
 
 		int dx = w % 3 - 1;
 		int dy = w / 3 - 1;
 
-		if (model->at(X + dx, Y + dy, type) != nullptr) {
-			if (calcPart() != 0.0) {
+		if (w != 4 && !model->empty(X + dx, Y + dy, type)) {
+			if (calcPart() != 0.0 &&
+				model->pinkTicket(X + dx, Y + dy, type, this)) {
 #ifdef DEBUG
 				std::cout << "population++" << std::endl;
 #endif
-				model->add(type, X, Y);
+				delay = Delay;
+				model->add(X, Y, type);
 			}
 			return 4; // stay in current place
 		}
@@ -116,16 +134,19 @@ class Animal : public IAnimal {
 		X += dx;
 		Y += dy;
 
-		if (calcSat() != 0.0 && model->at(X, Y, Prey) != nullptr) {
+		if (calcSat() != 1.0 && !model->empty(X, Y, Prey)) {
 #ifdef DEBUG
 			std::cout << "Mnom-mnom" << std::endl;
 #endif
-			model->kill(Prey, X, Y);
+			model->kill(X, Y, Prey);
 			satiety = std::min(satiety + NutVal, 100);
 		}
 
 		return w;
 	}
+
+	bool getSex() override { return sex; };
+	int getDelay() override { return delay; }
 
 	virtual ~Animal() = default;
 };
@@ -133,8 +154,8 @@ class Animal : public IAnimal {
 using Bunny =
 	Animal<Settings::Bunny, Settings::BunnyLifeSpan, Settings::CarrotNuVal,
 		   Settings::BunnySpeed, Settings::BunnyFOV, Settings::Types::Carrot,
-		   Settings::Types::Fox>;
+		   Settings::Types::Fox, Settings::BunnyDelay>;
 
 using Fox = Animal<Settings::Fox, Settings::FoxLifeSpan, Settings::BunnyNuVal,
 				   Settings::FoxSpeed, Settings::FoxFOV, Settings::Types::Bunny,
-				   Settings::Types::None>;
+				   Settings::Types::None, Settings::FoxDelay>;
