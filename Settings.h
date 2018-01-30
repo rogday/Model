@@ -8,6 +8,7 @@
 #include <initializer_list>
 #include <list>
 #include <random>
+#include <string>
 #include <vector>
 
 #define NDEBUG
@@ -27,7 +28,7 @@ const float SizeScale = 0.5;
 
 // dimentions
 const int N = 64;
-const int M = 64;
+const int M = N;
 
 // cellTypes
 enum Types { Fox = 0, Bunny, Carrot, None }; // None is always in the end
@@ -38,16 +39,16 @@ const int FoxLifeSpan = 150;
 const int BunnyLifeSpan = 100;
 
 // Delay
-const int FoxDelay = 2;
-const int BunnyDelay = 1;
+const int FoxDelay = 20;
+const int BunnyDelay = 10;
 
 // Speed
 const int FoxSpeed = 4;
 const int BunnySpeed = 2;
 
 // FOV
-const int FoxFOV = 5;
-const int BunnyFOV = 3;
+const int FoxFOV = 2;
+const int BunnyFOV = 5;
 
 // Nutritional Values
 const int CarrotNuVal = 35;
@@ -55,8 +56,8 @@ const int BunnyNuVal = 80;
 
 // Probablilities
 const double EmptyProb = 10.0;
-const double CarrotProb = 35.0;
-const double FoxProb = 10.0;
+const double CarrotProb = 40.0;
+const double FoxProb = 0.0;
 const double BunnyProb = 45.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,
@@ -64,7 +65,7 @@ const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,
 
 // Fabric
 extern std::array<std::function<ICreature *(int, int, bool)>, 3> Allocators;
-
+extern std::array<std::string, 3> Names;
 extern std::array<sf::Color, 3> Colors;
 
 bool bounds(int x, int n);

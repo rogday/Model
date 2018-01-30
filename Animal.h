@@ -16,7 +16,10 @@ class Animal : public IAnimal {
 
 	static int wave(int c, int i, int k) {
 		int m = std::max(abs(i), abs(k));
-		return std::max(c - m * m, 0);
+		if (c > 0)
+			return std::max(c - m * m, 0);
+		else
+			return -std::max(-c - m * m, 0);
 	}
 
 	double calcSat() const {
@@ -141,7 +144,8 @@ class Animal : public IAnimal {
 	}
 
 	int move() {
-		int w = findPath(-50, 60 * calcSat(), 50 * calcPart());
+		int w =
+			findPath(-15 * FOV, 10 * FOV * calcSat(), 20 * FOV * calcPart());
 
 		int dx = w % 3 - 1;
 		int dy = w / 3 - 1;

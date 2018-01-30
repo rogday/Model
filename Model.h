@@ -13,6 +13,10 @@ class Model {
 	sf::RenderWindow window;
 	std::vector<sf::RectangleShape> rects;
 
+	/*statistics stuff */
+	std::vector<int> born;
+	std::vector<int> died;
+
   private:
 	ICreature *&at(int x, int y, int r) {
 		return field[Settings::N * Settings::M * r + y * Settings::N + x];
@@ -33,6 +37,7 @@ class Model {
 
 	void processField();
 	void start();
+	void prettyPrint();
 
 	// do not forget to clean up memory
 	~Model();

@@ -7,6 +7,5 @@ int main(int n, char *argv[]) {
 	Model test;
 
 	test.start();
-
-	cout << "It works" << endl;
+	test.prettyPrint();
 }

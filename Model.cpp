@@ -3,12 +3,15 @@
 #include "IAnimal.h"
 #include "IPlant.h"
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
 
 using namespace sf;
 
 Model::Model()
 	: field(Settings::N * Settings::M * Settings::None, nullptr), pass(false),
-	  rects(Settings::N * Settings::M) {
+	  rects(Settings::N * Settings::M), born(Settings::None, 0),
+	  died(Settings::None, 0) {
 
 	VideoMode vm = VideoMode::getDesktopMode();
 
@@ -53,6 +56,7 @@ void Model::kill(int x, int y, int r) {
 
 	rat(x, y).setFillColor(clr);
 	at(x, y, r)->die();
+	++died[r];
 }
 
 bool Model::pinkTicket(int x, int y, int r, IAnimal *two) {
@@ -73,6 +77,7 @@ void Model::add(int x, int y, int r) {
 				Color clr = rat(nx, ny).getFillColor() + Settings::Colors[r];
 				clr.a = 255;
 				rat(nx, ny).setFillColor(clr);
+				++born[r];
 				return;
 			}
 		}
@@ -179,4 +184,20 @@ Model::~Model() {
 		for (int k = 0; k < Settings::M; ++k)
 			for (int r = 0; r < Settings::None; ++r)
 				delete at(i, k, r);
+}
+
+void Model::prettyPrint() {
+	std::cout << "Born / Died / Alive:" << std::endl << std::endl;
+
+	int max = std::max_element(Settings::Names.begin(), Settings::Names.end(),
+							   [](std::string &a, std::string &b) {
+								   return a.size() < b.size();
+							   })
+				  ->size();
+
+	for (int i = 0; i < Settings::None; ++i) {
+		std::string &str = Settings::Names[i];
+		std::cout << str << std::setw(max - str.size() + 14) << born[i] << " / "
+				  << died[i] << " / " << born[i] - died[i] << std::endl;
+	}
 }
