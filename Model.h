@@ -27,4 +27,7 @@ class Model {
 
 	void processField();
 	void start();
+
+	// do not forget to clean up memory
+	~Model();
 };

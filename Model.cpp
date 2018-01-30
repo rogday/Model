@@ -18,7 +18,7 @@ Model::Model()
 	window.create(sf::VideoMode(size * Settings::N, size * Settings::M),
 				  "Life simulator", Style::Titlebar | Style::Close);
 	window.setPosition(Vector2i(vm.width / 8, vm.height / 8));
-	window.setFramerateLimit(75);
+	// window.setFramerateLimit(75);
 
 	ICreature::setModel(this);
 
@@ -37,9 +37,13 @@ Model::Model()
 		}
 
 	for (int i = 0; i < Settings::N; ++i)
-		for (int k = 0; k < Settings::M; ++k)
+		for (int k = 0; k < Settings::M; ++k) {
+			for (r = 0; r < Settings::None; ++r)
+				at(i, k, r) = Settings::Allocators[r](i, k, false);
+
 			if ((r = d(gen)) != 0)
 				add(i + 1, k + 1, r - 1);
+		}
 }
 
 void Model::kill(int x, int y, int r) {
@@ -48,11 +52,8 @@ void Model::kill(int x, int y, int r) {
 
 	rects[y * Settings::N + x].setFillColor(clr);
 
-	delete at(x, y, r);
-	at(x, y, r) = nullptr;
+	at(x, y, r)->die();
 }
-
-bool bounds(int x, int n) { return x >= 0 && x < n; }
 
 bool Model::pinkTicket(int x, int y, int r, IAnimal *two) {
 	// return true;
@@ -68,9 +69,9 @@ void Model::add(int x, int y, int r) {
 		for (int cx : {-1, 0, 1}) {
 			nx = x + cx;
 			ny = y + cy;
-			if (bounds(nx, Settings::N) && bounds(ny, Settings::M) &&
-				empty(nx, ny, r)) {
-				at(nx, ny, r) = Settings::Allocators[r](nx, ny);
+			if (Settings::bounds(nx, Settings::N) &&
+				Settings::bounds(ny, Settings::M) && empty(nx, ny, r)) {
+				at(nx, ny, r)->reset(pass);
 				Color clr = rects[ny * Settings::N + nx].getFillColor() +
 							Settings::Colors[r];
 				clr.a = 255;
@@ -84,19 +85,16 @@ ICreature *&Model::at(int x, int y, int r) {
 	return field[Settings::N * Settings::M * r + y * Settings::N + x];
 }
 
-bool Model::empty(int x, int y, int r) { return at(x, y, r) == nullptr; }
+bool Model::empty(int x, int y, int r) { return !at(x, y, r)->alive(); }
 
 void Model::move(int x, int y, int r, int way) {
-	if (way == 4)
-		return;
-
 	int ni = x + way % 3 - 1;
 	int nk = y + way / 3 - 1;
 
-	assert(empty(ni, nk, r));
+	assert(Settings::bounds(ni, Settings::N) &&
+		   Settings::bounds(nk, Settings::M) && empty(ni, nk, r));
 
-	at(ni, nk, r) = at(x, y, r);
-	at(x, y, r) = nullptr;
+	at(x, y, r)->swap(at(ni, nk, r));
 
 	Color clr = rects[y * Settings::N + x].getFillColor() - Settings::Colors[r];
 	clr.a = 255;
@@ -116,26 +114,29 @@ void Model::processField() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	std::discrete_distribution<> d({3, 97});
+	std::discrete_distribution<> d({5, 95});
 
 	for (int i = 0; i < Settings::N; ++i)
 		for (int k = 0; k < Settings::M; ++k)
 			for (int r = 0; r < Settings::None; ++r)
 				if (!empty(i, k, r)) {
 					if (at(i, k, r)->ready(pass)) {
-						if (!at(i, k, r)->process())
-							kill(i, k, r);
-						else if ((ptr = dynamic_cast<IAnimal *>(at(i, k, r))) !=
-								 nullptr) {
-							int dx = i;
-							int dy = k;
-							while (ptr->hasMoves()) {
+						int dx = i;
+						int dy = k;
+
+						if (at(dx, dy, r)->process())
+							while ((ptr = dynamic_cast<IAnimal *>(
+										at(dx, dy, r))) != nullptr &&
+								   ptr->hasMoves()) {
 								coord = ptr->move();
+								if (coord == 4)
+									break;
 								move(dx, dy, r, coord);
 								dx += coord % 3 - 1;
 								dy += coord / 3 - 1;
 							}
-						}
+						else
+							kill(dx, dy, r);
 					}
 				} else {
 					if (r == Settings::Carrot && d(gen) == 0)
@@ -166,8 +167,10 @@ void Model::start() {
 		for (auto &rect : rects) {
 			Color clr = rect.getFillColor();
 
-			if (rect.getFillColor() == Color::Black)
+			if (clr == Color::Black)
 				rect.setFillColor(Color::White);
+			else if (clr == Color(220, 220, 220))
+				rect.setFillColor(Color::Black);
 
 			window.draw(rect);
 
@@ -178,4 +181,11 @@ void Model::start() {
 
 		window.display();
 	}
+}
+
+Model::~Model() {
+	for (int i = 0; i < Settings::N; ++i)
+		for (int k = 0; k < Settings::M; ++k)
+			for (int r = 0; r < Settings::None; ++r)
+				delete at(i, k, r);
 }

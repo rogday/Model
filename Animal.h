@@ -11,8 +11,8 @@ class Animal : public IAnimal {
 	int satiety;
 	bool sex;
 	int delay;
-	int X;
-	int Y;
+	const int X;
+	const int Y;
 
 	static int wave(int c, int i, int k) {
 		int m = std::max(abs(i), abs(k));
@@ -54,19 +54,19 @@ class Animal : public IAnimal {
 		bool empty = true;
 		for (int cy = -1; cy <= 1; ++cy)
 			for (int cx = -1; cx <= 1; ++cx) {
-				if (X + cx >= 0 && X + cx < Settings::N && Y + cy >= 0 &&
-					Y + cy < Settings::M) {
+				if (Settings::bounds(X + cx, Settings::N) &&
+					Settings::bounds(Y + cy, Settings::M)) {
 					for (int x = minX; x <= maxX; ++x)
 						for (int y = minY; y <= maxY; ++y)
 							for (int r = 0; r < Settings::None; ++r)
 								if (!model->empty(x, y, r)) {
-
+									empty = false;
 									ways[i] += wave(weights[r], x - (X + cx),
 													y - (Y + cy));
 								}
 
 				} else {
-					ways[i] = INT32_MIN; //>5*5
+					ways[i] = INT32_MIN;
 					empty = false;
 				}
 				++i;
@@ -79,10 +79,39 @@ class Animal : public IAnimal {
 	};
 
   public:
-	Animal(int i, int k)
-		: satiety(80 + rand() % 21), sex(rand() % 2), delay(0), X(i), Y(k){};
+	Animal(int i, int k, bool state)
+		: IAnimal(state), satiety(80 + rand() % 21), sex(rand() % 2), delay(0),
+		  X(i), Y(k){};
+
+	virtual void reset(bool pass) override {
+		assert(!state);
+
+#ifdef DEBUG
+		std::cout << "reset()" << std::endl;
+#endif
+
+		age = 0;
+		state = true;
+		satiety = 80 + rand() % 21;
+		sex = rand() % 2;
+		delay = 0;
+		this->pass = pass;
+	}
+
+	virtual void swap(ICreature *another) override {
+		Animal *ptr = dynamic_cast<Animal *>(another);
+
+		std::swap(state, ptr->state);
+		std::swap(satiety, ptr->satiety);
+		std::swap(sex, ptr->sex);
+		std::swap(delay, ptr->delay);
+		std::swap(age, ptr->age);
+		std::swap(pass, ptr->pass);
+	}
 
 	virtual bool process() override {
+		assert(state);
+
 		pass ^= true;
 
 		if (delay > 0)
@@ -95,7 +124,7 @@ class Animal : public IAnimal {
 			return false; // too old
 		}
 
-		if ((satiety -= 6) < 0) {
+		if ((satiety -= 4) < 0) {
 #ifdef DEBUG
 			if (type == Settings::Bunny)
 				std::cout << "I am fucking Bunny" << std::endl;
@@ -114,7 +143,7 @@ class Animal : public IAnimal {
 	}
 
 	int move() {
-		int w = findPath(-35, 30 * calcSat(), 50 * calcPart());
+		int w = findPath(-50, 60 * calcSat(), 50 * calcPart());
 
 		int dx = w % 3 - 1;
 		int dy = w / 3 - 1;
@@ -131,9 +160,6 @@ class Animal : public IAnimal {
 			return 4; // stay in current place
 		}
 
-		X += dx;
-		Y += dy;
-
 		if (calcSat() != 1.0 && !model->empty(X, Y, Prey)) {
 #ifdef DEBUG
 			std::cout << "Mnom-mnom" << std::endl;
@@ -145,10 +171,8 @@ class Animal : public IAnimal {
 		return w;
 	}
 
-	bool getSex() override { return sex; };
-	int getDelay() override { return delay; }
-
-	virtual ~Animal() = default;
+	bool getSex() const override { return sex; };
+	int getDelay() const override { return delay; }
 };
 
 using Bunny =

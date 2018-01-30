@@ -10,7 +10,7 @@
 #include <random>
 #include <vector>
 
-//#define DEBUG
+#define DEBUG
 
 #ifdef DEBUG
 #include <iostream>
@@ -20,8 +20,8 @@ class ICreature;
 
 namespace Settings {
 // dimentions
-const int N = 50;
-const int M = 50;
+const int N = 64;
+const int M = 64;
 
 // Sex[deprecated]
 // enum Sex { Male = 0, Female };
@@ -37,35 +37,35 @@ const int FoxLifeSpan = 150;
 const int BunnyLifeSpan = 100;
 
 // Delay
-const int FoxDelay = 6;
-const int BunnyDelay = 2;
+const int FoxDelay = 2;
+const int BunnyDelay = 1;
 
 // Speed
-// const int FoxSpeed = 5;
-// const int BunnySpeed = 3;
-const int FoxSpeed = 1;
-const int BunnySpeed = 4;
+const int FoxSpeed = 4;
+const int BunnySpeed = 2;
 
 // FOV
-const int FoxFOV = 3;
-const int BunnyFOV = 2;
+const int FoxFOV = 5;
+const int BunnyFOV = 3;
 
 // Nutritional Values
 const int CarrotNuVal = 35;
 const int BunnyNuVal = 80;
 
 // Probablilities
-const double EmptyProb = 10.0;
+const double EmptyProb = 5.0;
 const double CarrotProb = 35.0;
-const double FoxProb = 5.0;
-const double BunnyProb = 50.0;
+const double FoxProb = 15.0;
+const double BunnyProb = 45.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,
 											 CarrotProb};
 
 // Fabric
-extern std::array<std::function<ICreature *(int, int)>, 3> Allocators;
+extern std::array<std::function<ICreature *(int, int, bool)>, 3> Allocators;
 
 extern std::array<sf::Color, 3> Colors;
+
+bool bounds(int x, int n);
 
 } // namespace Settings
