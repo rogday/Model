@@ -23,3 +23,19 @@ std::array<sf::Color, 3> Settings::Colors = {
 std::array<std::string, 3> Settings::Names = {"Fox", "Bunny", "Carrot"};
 
 bool Settings::bounds(int x, int n) { return x >= 0 && x < n; }
+
+unsigned long Settings::xorshf96(void) { // period 2^96-1
+	unsigned long t;
+	static unsigned long x = 123456789, y = 362436069, z = 521288629;
+
+	x ^= x << 16;
+	x ^= x >> 5;
+	x ^= x << 1;
+
+	t = x;
+	x = y;
+	y = z;
+	z = t ^ x ^ y;
+
+	return z;
+}

@@ -81,15 +81,15 @@ class Animal : public IAnimal {
 			}
 
 		if (empty)
-			return rand() % 9;
+			return Settings::xorshf96() % 9;
 
 		return std::max_element(ways, ways + 9) - ways; // hack???
 	};
 
   public:
 	Animal(int i, int k, bool state)
-		: IAnimal(state), satiety(80 + rand() % 21), sex(rand() % 2), delay(0),
-		  X(i), Y(k){};
+		: IAnimal(state), satiety(80 + Settings::xorshf96() % 21),
+		  sex(Settings::xorshf96() % 2), delay(0), X(i), Y(k){};
 
 	virtual void reset(bool pass) override {
 		assert(!state);
@@ -100,8 +100,8 @@ class Animal : public IAnimal {
 
 		age = 0;
 		state = true;
-		satiety = 80 + rand() % 21;
-		sex = rand() % 2;
+		satiety = 80 + Settings::xorshf96() % 21;
+		sex = Settings::xorshf96() % 2;
 		delay = 0;
 		this->pass = pass;
 	}

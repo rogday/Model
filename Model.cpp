@@ -107,11 +107,6 @@ void Model::processField() {
 	IAnimal *ptr = nullptr;
 	int coord = 0;
 
-	std::random_device rd;
-	std::mt19937 gen(rd());
-
-	std::discrete_distribution<> d({5, 95});
-
 	for (int i = 0; i < Settings::N; ++i)
 		for (int k = 0; k < Settings::M; ++k)
 			for (int r = 0; r < Settings::None; ++r)
@@ -135,7 +130,7 @@ void Model::processField() {
 							kill(dx, dy, r);
 					}
 				} else {
-					if (r == Settings::Carrot && d(gen) == 0)
+					if (r == Settings::Carrot && Settings::xorshf96() % 101 < 6)
 						add(i + 1, k + 1, Settings::Carrot);
 				}
 

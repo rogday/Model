@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-//#define NDEBUG
+#define NDEBUG
 
 #ifndef NDEBUG
 #include <iostream>
@@ -27,7 +27,7 @@ const int FPS = 75;
 const float SizeScale = 0.5;
 
 // dimentions
-const int N = 64;
+const int N = 100;
 const int M = N;
 
 // cellTypes
@@ -69,5 +69,7 @@ extern std::array<std::string, 3> Names;
 extern std::array<sf::Color, 3> Colors;
 
 bool bounds(int x, int n);
+
+unsigned long xorshf96(void);
 
 } // namespace Settings
