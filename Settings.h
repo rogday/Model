@@ -55,10 +55,10 @@ const int CarrotNuVal = 35;
 const int BunnyNuVal = 80;
 
 // Probablilities
-const double EmptyProb = 5.0;
+const double EmptyProb = 35.0;
 const double CarrotProb = 35.0;
 const double FoxProb = 15.0;
-const double BunnyProb = 45.0;
+const double BunnyProb = 15.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,
 											 CarrotProb};
