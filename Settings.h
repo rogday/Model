@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#define NDEBUG
+//#define NDEBUG
 
 #ifndef NDEBUG
 #include <iostream>
@@ -36,28 +36,28 @@ enum Types { Fox = 0, Bunny, Carrot, None }; // None is always in the end
 // LifeSpan
 const int CarrotLifeSpan = 30;
 const int FoxLifeSpan = 150;
-const int BunnyLifeSpan = 100;
+const int BunnyLifeSpan = 70;
 
 // Delay
-const int FoxDelay = 20;
-const int BunnyDelay = 10;
+const int FoxDelay = 35;
+const int BunnyDelay = 7;
 
 // Speed
-const int FoxSpeed = 4;
+const int FoxSpeed = 1;
 const int BunnySpeed = 2;
 
 // FOV
-const int FoxFOV = 2;
-const int BunnyFOV = 5;
+const int FoxFOV = 3;
+const int BunnyFOV = 2;
 
 // Nutritional Values
 const int CarrotNuVal = 35;
 const int BunnyNuVal = 80;
 
 // Probablilities
-const double EmptyProb = 10.0;
-const double CarrotProb = 40.0;
-const double FoxProb = 0.0;
+const double EmptyProb = 5.0;
+const double CarrotProb = 35.0;
+const double FoxProb = 15.0;
 const double BunnyProb = 45.0;
 
 const std::initializer_list<double> Probs = {EmptyProb, FoxProb, BunnyProb,

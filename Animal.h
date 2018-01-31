@@ -31,14 +31,19 @@ class Animal : public IAnimal {
 	}
 
 	double calcPart() const {
-		if (age < 0.2 * LifeSpan || age > 0.8 * LifeSpan)
-			return 0.0;
-		double f = abs(age - LifeSpan / 2);
-		return 1.0 / (f + 1.0);
+		double n = LifeSpan / 2;
+		return std::sin((n + std::pow(age - n, 2)) / (M_PI * 2));
+
+		double f = abs(age - LifeSpan / 5);
+		return (LifeSpan / 10.0 / (f + 1.0)) - 0.6;
 	}
 
 	int findPath(int h, int p, int s) const {
 		// Warning! This function uses only local information.
+
+		/*
+			FIX THAT.
+		*/
 
 		int minX = std::max(X - FOV, 0);
 		int maxX = std::min(X + FOV, Settings::N - 1);
@@ -144,14 +149,14 @@ class Animal : public IAnimal {
 	}
 
 	int move() {
-		int w =
-			findPath(-15 * FOV, 10 * FOV * calcSat(), 20 * FOV * calcPart());
+		int w = findPath(-FOV * FOV / 2, FOV * FOV * calcSat() / 3,
+						 FOV * FOV * calcPart());
 
 		int dx = w % 3 - 1;
 		int dy = w / 3 - 1;
 
 		if (w != 4 && !model->empty(X + dx, Y + dy, type)) {
-			if (calcPart() != 0.0 &&
+			if (calcPart() > 0 &&
 				model->pinkTicket(X + dx, Y + dy, type, this)) {
 #ifndef NDEBUG
 				std::cout << "population++" << std::endl;
